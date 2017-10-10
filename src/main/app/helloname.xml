@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tracking="http://www.mulesoft.org/schema/mule/ee/tracking" xmlns:dw="http://www.mulesoft.org/schema/mule/ee/dw"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/dw http://www.mulesoft.org/schema/mule/ee/dw/current/dw.xsd
+http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/mule/ee/tracking/current/mule-tracking-ee.xsd">
+	<http:listener-config name="HTTP_Listener_Configuration"
+		host="0.0.0.0" port="8095" doc:name="HTTP Listener Configuration" />
+	<flow name="hellonameFlow">
+		<http:listener config-ref="HTTP_Listener_Configuration"
+			path="/helloname" doc:name="HTTP" />
+		<set-variable variableName="fname"
+			value="#[message.inboundProperties.'http.query.params']['fname']]"
+			doc:name="Variable" />
+		<choice doc:name="Choice">
+			<when expression="#[flowVars.fname != null]">
+				<dw:transform-message doc:name="Transform Message">
+                    <dw:input-variable doc:sample="sample_data\map_string_string.dwl" variableName="fname"/>
+					<dw:set-payload><![CDATA[%dw 1.0
+%output application/json
+---
+{
+	returned : "Hello " ++ flowVars.fname
+	
+	}]]></dw:set-payload>
+				</dw:transform-message>
+			</when>
+			<otherwise>
+				<set-payload
+					value="Hello ! Please send name in query parameter (fname) to be greeted" doc:name="Set Payload"/>
+			</otherwise>
+		</choice>
+
+	</flow>
+</mule>
