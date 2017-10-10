@@ -14,6 +14,7 @@ http://www.mulesoft.org/schema/mule/ee/tracking http://www.mulesoft.org/schema/m
 	<flow name="hellonameFlow">
 		<http:listener config-ref="HTTP_Listener_Configuration"
 			path="/helloname" doc:name="HTTP" />
+        <logger message="Request received: #[payload]" level="INFO" doc:name="Logger"/>
 		<set-variable variableName="fname"
 			value="#[message.inboundProperties.'http.query.params']['fname']]"
 			doc:name="Variable" />
